@@ -1,7 +1,7 @@
 {
   "name": "fastify-multipart-with-zod-example",
   "version": "1.0.0",
-  "description": "",
+  "description": "Fastify example for multipart file uploads with Zod validation.",
   "main": "index.ts",
   "type": "module",
   "scripts": {
