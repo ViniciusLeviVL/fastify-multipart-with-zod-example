@@ -1,4 +1,7 @@
-import fastifyMultipart, { type MultipartFile } from '@fastify/multipart'
+import fastifyMultipart, {
+  type MultipartFile,
+  type MultipartValue,
+} from '@fastify/multipart'
 import fastify from 'fastify'
 import {
   serializerCompiler,
@@ -13,6 +16,7 @@ app.setSerializerCompiler(serializerCompiler)
 app.setValidatorCompiler(validatorCompiler)
 
 app.register(fastifyMultipart, { attachFieldsToBody: true })
+// You can use attachFieldsToBody: "keyValues" to avoid another fields preprocessing, but in that case, you will receive a Buffer for files that are not text/plain.
 
 app.post(
   '/upload',
@@ -31,17 +35,19 @@ app.post(
           .refine((file) => file.mimetype.startsWith('image'), {
             message: 'Only images are allowed to be sent.',
           }),
+        anotherField: z.preprocess(
+          (file) => (file as MultipartValue).value,
+          z.string() /* validation here */,
+        ),
+        /* another fields here */
       }),
     },
   },
   async (request, reply) => {
-    const { image } = request.body
+    const { image, anotherField } = request.body
 
-    console.log({
-      filename: image.filename,
-      mimetype: image.mimetype,
-      bytes: image.file.bytesRead,
-    })
+    console.log('imageType:', image.mimetype)
+    console.log('anotherField:', anotherField)
 
     return reply.send('OK')
   },
